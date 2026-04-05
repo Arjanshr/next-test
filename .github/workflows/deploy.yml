@@ -28,7 +28,6 @@ jobs:
       - name: Build and export
         run: |
           npm run build -- --webpack
-          npx next export
 
       # 5️⃣ Copy files to server
       - name: Deploy to server
