@@ -3,37 +3,40 @@ name: Deploy Next.js Test Site
 on:
   push:
     branches:
-      - main   # or the branch you want to trigger deployment
+      - main  # or any branch you want to deploy
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '20'
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build Next.js (Webpack)
-        run: npm run build -- --webpack
+      # 4️⃣ Build and export Next.js
+      - name: Build and export
+        run: |
+          npm run build -- --webpack
 
-      - name: Export static files
-        run: npm run export
-
+      # 5️⃣ Copy files to server
       - name: Deploy to server
         uses: appleboy/scp-action@v0.1.6
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: mobilemandu
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "out/*"  # ✅ copy everything from out folder
-          target: "/home/mobilemandu/test.mobilemandu.com"  # ✅ test subdomain folder
-          rm: false  # ⚠ do NOT delete other files in folder
+          source: "out/*"
+          target: "/home/mobilemandu/test.mobilemandu.com"
+          rm: true   # remove files on server not present locally
