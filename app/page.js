@@ -1,7 +1,24 @@
+'use client'
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -59,6 +76,22 @@ export default function Home() {
           >
             Documentation
           </a>
+          {isLoggedIn ? (
+            <button
+              className={styles.secondary}
+              onClick={handleLogout}
+              style={{ background: 'none', border: '1px solid #ccc', padding: '10px 20px', cursor: 'pointer' }}
+            >
+              Logout
+            </button>
+          ) : (
+            <a
+              className={styles.secondary}
+              href="/login"
+            >
+              Login
+            </a>
+          )}
         </div>
       </main>
     </div>
